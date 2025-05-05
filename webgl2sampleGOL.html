@@ -13,15 +13,25 @@
 </head>
 <body>
     <canvas id="glCanvas"></canvas>
-    <div class="nav" >
-        <button onclick="myVar = setInterval(drawCanvas, 10)">Start</button>
-        <button onclick="clearInterval(myVar)">Stop</button>
-        <button onclick="drawCanvas()">Step</button>
-        <button onclick="loadImage()">Load image</button>
+    <div class="nav" id="divn" >
+        <button id="start"
+          onclick="myVar = setInterval(drawCanvas, 10); document.getElementById('stop').disabled=false; this.disabled=true;">
+          &#9658; Start</button>
+        <button id="stop" disabled 
+          onclick="clearInterval(myVar);document.getElementById('start').disabled=false; this.disabled=true;" >
+          &#9724;Stop</button>
+        <button id="step" onclick="drawCanvas()">Step</button>
+        <button id="help" onclick="alert(' Game of Life on the fully local flat (folded) torus grid\n\n' +
+         'Projecting the torus onto the canvas plane creates \n' +
+         '  four virtual layers represented by Red, Green, Blue, and  Grey colors. \n\n' +
+         'Use Alt/Ctrl/Shift/Start+Click to add lines. \n\n' +
+         'Drag or use arrow keys to scroll around the torus.\n\n'+
+         'Press S key to hide/display buttons.')">?</button>
+        
+        <button onclick="loadImage();">Load image</button>
         <button onclick="clearCanvas()">Clear</button>
         <span class="sz" id="cs">canvas size</span>
         <span class="sz" id="mc">mouse coordinates</span>
-
     </div>
 <script>
 "use strict";
@@ -73,9 +83,7 @@ int nbhcnt(in sampler2D channel, in ivec2 xy) //count live neighbours
 {
     int cnt = 0;
     ivec2 ts = 2 * (textureSize(channel, 0));
-    //ts.y = 2; /// experimental: SHORT FOLDING = compactification of the dimension
-    //ts.x = 2;
-    //xy += ts; // a workaround for an issue with % 
+    //ts.y = 40; /// experimental: SHORT FOLDING = compactification of the dimension
     for(int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++) // 3x3 pixels
         if (livel(channel,
             xyl((((xy + ivec2(i, j)) % ts) + ts) % ts, ts)
@@ -337,6 +345,12 @@ function keyDown(e){
     case "ArrowDown": shiftY = -1; break;
     case "ArrowLeft": shiftX = -1; break;
     case "ArrowRight": shiftX = 1; break;
+    case "S":
+    case "s":   var d = document.getElementById('divn');
+      if (d.style.display === "none") d.style.display = "block";
+      else d.style.display = "none";
+      break;
+    case "P": case "p": ;break;
     default: break;
   }
   mc.innerHTML = shiftX.toString() + ", " + shiftY.toString();
@@ -356,6 +370,7 @@ function keyUp(e){
 function loadImage(){  //load the starting configuration from file
   image.onload = function(){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    drawCanvas();
   }
   image.src="vaccl.png";
   //image.src="cNp.png";
@@ -367,7 +382,10 @@ function mouseDown(e) {
   shiftX = 0;
   shiftY = 0;
   let l = e.altKey?1:0 + e.ctrlKey?2:0 + e.shiftKey?4:0 + e.metaKey?8:0;
-  if (l !=0) gl.uniform4i(mouseLocation, x, y, l, 10.0);
+  if (l !=0) {
+    gl.uniform4i(mouseLocation, x, y, l, 10.0);
+    drawCanvas();
+  }
   mc.innerHTML = e.offsetX.toString() + ", " + e.offsetY.toString() + ", " + l.toString();
 }
 
@@ -412,8 +430,6 @@ function draw(fb) {
 }
 
 main();
-var myVar;
-//myVar = setInterval(drawCanvas, 10);
 
 </script>
 
