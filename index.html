@@ -5,9 +5,19 @@
     <title>Cellular automata on folded meshes</title>
 </head>
 <body>
-<h1>File list</h1>
+<h1>Game Of Life on the flattened torus</h1>
+
+<p>The fully local and asynchronous cellular automaton must not wait until all the cells 
+are evaluated before starting evaluating the new time frame (so, it does not have timeframes).
+It means that the rule must be applied to only one texture. 
+Unfortunatelly, WebGL prevents writing to and reading from the same texture to avoid unpredictable results.
+</p>
+<p>
+Here a few examples are listed that are still synchronous because they use two copies of the cells:</p>
 <ul>
-<li><a href="webgl2sampleGOL.html">webgl2sampleGOL.html</a></li>
+<li><a href="webgl2sampleGOL.html">copying canvas to texture</a></li>
+<li><a href="webgl2sampleGOL_2flipping_textures.html">two flipping textures (buggy)</a></li> 
+<li><a href="flipping_textures.html">two flipping textures (fixed)</a></li> 
 </ul>
 </body>
 </html>
